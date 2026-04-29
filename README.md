@@ -7,7 +7,7 @@ An MCP (Model Context Protocol) server that provides 7 security tools for develo
 ## Features
 
 - 🔍 **scan_code** ✅ - SAST-light using Semgrep + Gitleaks (working tree)
-- 📦 **analyze_dependencies** - SCA using osv-scanner + npm audit
+- 📦 **analyze_dependencies** ✅ - SCA using osv-scanner + npm audit
 - 🏗️ **analyze_architecture** - Architecture threat analysis with Claude API + deterministic rules
 - 🎯 **threat_model** - Proactive STRIDE threat modeling before implementation
 - 🔑 **check_secrets** ✅ - Git history secret scanning with Gitleaks
@@ -107,7 +107,7 @@ securedev-mcp/
 │   └── tools/                   # 7 security tools
 │       ├── check-secrets/       # ✅ Fully implemented
 │       ├── scan-code/           # ✅ Fully implemented
-│       ├── analyze-dependencies/# Stub
+│       ├── analyze-dependencies/# ✅ Fully implemented
 │       ├── analyze-architecture/# Stub
 │       ├── threat-model/        # Stub
 │       ├── generate-sbom/       # Stub
@@ -153,7 +153,8 @@ min(score, 0)
 - ✅ Full scaffolding
 - ✅ check_secrets fully implemented
 - ✅ scan_code fully implemented
-- ⏳ Other 5 tools as stubs
+- ✅ analyze_dependencies fully implemented
+- ⏳ Other 4 tools as stubs
 - ⏳ In-memory session only
 
 **Phase 2 (Future):**

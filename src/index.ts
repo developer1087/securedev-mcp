@@ -15,19 +15,9 @@ import {
 import { initSession, hasSession, getSession } from './session/context.js';
 import { checkSecrets } from './tools/check-secrets/index.js';
 import { scanCode } from './tools/scan-code/index.js';
+import { analyzeDependencies } from './tools/analyze-dependencies/index.js';
 
 // Tool stubs (to be implemented)
-
-async function analyzeDependenciesStub(args: any) {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: 'analyze_dependencies tool - not yet implemented',
-      },
-    ],
-  };
-}
 
 async function analyzeArchitectureStub(args: any) {
   return {
@@ -266,7 +256,7 @@ async function main() {
           return await scanCode(args);
 
         case 'analyze_dependencies':
-          return await analyzeDependenciesStub(args);
+          return await analyzeDependencies(args);
 
         case 'analyze_architecture':
           return await analyzeArchitectureStub(args);
