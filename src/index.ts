@@ -14,18 +14,9 @@ import {
 
 import { initSession, hasSession, getSession } from './session/context.js';
 import { checkSecrets } from './tools/check-secrets/index.js';
+import { scanCode } from './tools/scan-code/index.js';
 
 // Tool stubs (to be implemented)
-async function scanCodeStub(args: any) {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: 'scan_code tool - not yet implemented',
-      },
-    ],
-  };
-}
 
 async function analyzeDependenciesStub(args: any) {
   return {
@@ -272,7 +263,7 @@ async function main() {
 
       switch (name) {
         case 'scan_code':
-          return await scanCodeStub(args);
+          return await scanCode(args);
 
         case 'analyze_dependencies':
           return await analyzeDependenciesStub(args);

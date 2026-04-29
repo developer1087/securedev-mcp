@@ -6,7 +6,7 @@ An MCP (Model Context Protocol) server that provides 7 security tools for develo
 
 ## Features
 
-- 🔍 **scan_code** - SAST-light using Semgrep + Gitleaks (working tree)
+- 🔍 **scan_code** ✅ - SAST-light using Semgrep + Gitleaks (working tree)
 - 📦 **analyze_dependencies** - SCA using osv-scanner + npm audit
 - 🏗️ **analyze_architecture** - Architecture threat analysis with Claude API + deterministic rules
 - 🎯 **threat_model** - Proactive STRIDE threat modeling before implementation
@@ -106,7 +106,7 @@ securedev-mcp/
 │   │   └── delta.ts             # Threat model delta reports
 │   └── tools/                   # 7 security tools
 │       ├── check-secrets/       # ✅ Fully implemented
-│       ├── scan-code/           # Stub
+│       ├── scan-code/           # ✅ Fully implemented
 │       ├── analyze-dependencies/# Stub
 │       ├── analyze-architecture/# Stub
 │       ├── threat-model/        # Stub
@@ -152,7 +152,8 @@ min(score, 0)
 **Phase 1 (Current):**
 - ✅ Full scaffolding
 - ✅ check_secrets fully implemented
-- ⏳ Other 6 tools as stubs
+- ✅ scan_code fully implemented
+- ⏳ Other 5 tools as stubs
 - ⏳ In-memory session only
 
 **Phase 2 (Future):**
