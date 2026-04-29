@@ -17,6 +17,7 @@ import { checkSecrets } from './tools/check-secrets/index.js';
 import { scanCode } from './tools/scan-code/index.js';
 import { analyzeDependencies } from './tools/analyze-dependencies/index.js';
 import { generateSBOM } from './tools/generate-sbom/index.js';
+import { analyzeArchitecture } from './tools/analyze-architecture/index.js';
 
 // Tool stubs (to be implemented)
 
@@ -249,7 +250,7 @@ async function main() {
           return await analyzeDependencies(args);
 
         case 'analyze_architecture':
-          return await analyzeArchitectureStub(args);
+          return await analyzeArchitecture(args);
 
         case 'threat_model':
           return await threatModelStub(args);
