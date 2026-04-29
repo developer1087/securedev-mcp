@@ -16,6 +16,7 @@ import { initSession, hasSession, getSession } from './session/context.js';
 import { checkSecrets } from './tools/check-secrets/index.js';
 import { scanCode } from './tools/scan-code/index.js';
 import { analyzeDependencies } from './tools/analyze-dependencies/index.js';
+import { generateSBOM } from './tools/generate-sbom/index.js';
 
 // Tool stubs (to be implemented)
 
@@ -36,17 +37,6 @@ async function threatModelStub(args: any) {
       {
         type: 'text',
         text: 'threat_model tool - not yet implemented',
-      },
-    ],
-  };
-}
-
-async function generateSBOMStub(args: any) {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: 'generate_sbom tool - not yet implemented',
       },
     ],
   };
@@ -268,7 +258,7 @@ async function main() {
           return await checkSecrets(args);
 
         case 'generate_sbom':
-          return await generateSBOMStub(args);
+          return await generateSBOM(args);
 
         case 'get_guidance':
           return await getGuidanceStub(args);

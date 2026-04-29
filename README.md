@@ -11,7 +11,7 @@ An MCP (Model Context Protocol) server that provides 7 security tools for develo
 - 🏗️ **analyze_architecture** - Architecture threat analysis with Claude API + deterministic rules
 - 🎯 **threat_model** - Proactive STRIDE threat modeling before implementation
 - 🔑 **check_secrets** ✅ - Git history secret scanning with Gitleaks
-- 📋 **generate_sbom** - SBOM generation (CycloneDX/SPDX) with license analysis
+- 📋 **generate_sbom** ✅ - SBOM generation (CycloneDX/SPDX) with license analysis
 - 💡 **get_guidance** - Contextual security guidance with Claude API
 
 ✅ = Fully implemented | Others = Stubs (Phase 1)
@@ -110,7 +110,7 @@ securedev-mcp/
 │       ├── analyze-dependencies/# ✅ Fully implemented
 │       ├── analyze-architecture/# Stub
 │       ├── threat-model/        # Stub
-│       ├── generate-sbom/       # Stub
+│       ├── generate-sbom/       # ✅ Fully implemented
 │       └── get-guidance/        # Stub
 └── extension/                   # VS Code extension (future)
 ```
@@ -154,7 +154,8 @@ min(score, 0)
 - ✅ check_secrets fully implemented
 - ✅ scan_code fully implemented
 - ✅ analyze_dependencies fully implemented
-- ⏳ Other 4 tools as stubs
+- ✅ generate_sbom fully implemented
+- ⏳ Other 3 tools as stubs
 - ⏳ In-memory session only
 
 **Phase 2 (Future):**
