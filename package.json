@@ -1,0 +1,36 @@
+{
+  "name": "securedev-mcp",
+  "version": "0.1.0",
+  "description": "Secure development MCP server for developers",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@cyclonedx/cyclonedx-library": "^6.0.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^10.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "security",
+    "mcp",
+    "sast",
+    "sca",
+    "threat-modeling",
+    "sbom"
+  ],
+  "author": "",
+  "license": "MIT"
+}
