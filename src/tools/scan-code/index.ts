@@ -12,6 +12,7 @@ import { scanWorkingTreeForSecrets, isGitleaksInstalled } from './gitleaks-worki
 import { ScanCodeArgs, SemgrepResult } from './types';
 import { GitleaksResult } from '../check-secrets/types';
 import { maskSecret } from '../../shared/formatter';
+import { ProgressReporter } from '../../shared/progress';
 
 /**
  * Convert Semgrep result to Finding
@@ -101,7 +102,7 @@ function convertGitleaksToFinding(result: GitleaksResult): Finding {
 /**
  * scan_code tool implementation
  */
-export async function scanCode(args: any) {
+export async function scanCode(args: any, progress: ProgressReporter) {
   const { files = ['.'], projectType, projectPath }: ScanCodeArgs = args;
 
   const session = requireSession();
@@ -109,6 +110,8 @@ export async function scanCode(args: any) {
 
   const findings: Finding[] = [];
   const errors: string[] = [];
+
+  await progress.step(1, 4, 'Initializing code scan...');
 
   // Check tool availability
   const hasSemgrep = isSemgrepInstalled();
@@ -136,6 +139,7 @@ export async function scanCode(args: any) {
 
   // Run Semgrep
   if (hasSemgrep) {
+    await progress.step(2, 4, 'Running Semgrep security analysis...');
     try {
       const semgrepResults = runSemgrep(files, repoPath, projectType);
       semgrepResults.forEach((result) => {
@@ -151,6 +155,7 @@ export async function scanCode(args: any) {
 
   // Run Gitleaks on working tree
   if (hasGitleaks) {
+    await progress.step(3, 4, 'Scanning for hardcoded secrets with Gitleaks...');
     try {
       const gitleaksResults = scanWorkingTreeForSecrets(repoPath);
       gitleaksResults.forEach((result) => {
@@ -163,6 +168,8 @@ export async function scanCode(args: any) {
   } else {
     errors.push('Gitleaks not installed - skipping secret detection');
   }
+
+  await progress.step(4, 4, 'Processing and formatting results...');
 
   // Sort findings by severity (critical → high → medium → low)
   const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };

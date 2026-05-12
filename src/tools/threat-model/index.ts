@@ -7,6 +7,7 @@ import { callClaude, validateApiKey } from '../../shared/claude-client';
 import { Feature, ThreatModelFinding, StrideCategory, Severity } from '../../shared/types';
 import { requireSession, updateThreatModel, getSession } from '../../session/context';
 import { ThreatModelArgs, ClarifyingQuestions, StrideAnalysisResponse } from './types';
+import { ProgressReporter } from '../../shared/progress';
 
 /**
  * Standard clarifying questions
@@ -268,8 +269,10 @@ function formatThreatModelOutput(feature: Feature, isFirstRun: boolean): string 
 /**
  * threat_model tool implementation
  */
-export async function threatModel(args: any) {
+export async function threatModel(args: any, progress: ProgressReporter) {
   const { featureDescription, clarifications, projectPath }: ThreatModelArgs = args;
+
+  await progress.step(1, 3, 'Initializing threat model...');
 
   // Validate API key
   if (!validateApiKey()) {
@@ -334,6 +337,8 @@ export async function threatModel(args: any) {
 
   // Perform STRIDE analysis with Claude
   try {
+    await progress.step(2, 3, 'Analyzing feature with STRIDE framework via Claude API...');
+
     const prompt = buildStridePrompt(featureDescription, clarifications, session);
 
     const response = await callClaude(
@@ -343,6 +348,8 @@ export async function threatModel(args: any) {
         maxTokens: 4096,
       }
     );
+
+    await progress.step(3, 3, 'Processing and formatting threat model results...');
 
     // Create feature object
     const featureId = uuidv4();

@@ -14,6 +14,7 @@ import {
   isGitleaksInstalled,
 } from './gitleaks-history';
 import { CheckSecretsArgs, GitleaksResult } from './types';
+import { ProgressReporter } from '../../shared/progress';
 
 /**
  * Generic rotation steps (not service-specific)
@@ -96,8 +97,10 @@ function convertToSecretFinding(
 /**
  * Check secrets tool implementation
  */
-export async function checkSecrets(args: any) {
+export async function checkSecrets(args: any, progress: ProgressReporter) {
   const { scope = 'working', branch, projectPath }: CheckSecretsArgs = args;
+
+  await progress.step(1, 3, 'Initializing secret scan...');
 
   // Check if gitleaks is installed
   if (!isGitleaksInstalled()) {
@@ -124,6 +127,8 @@ export async function checkSecrets(args: any) {
     let results: GitleaksResult[] = [];
     let workingTreeResults: GitleaksResult[] = [];
 
+    await progress.step(2, 3, 'Scanning for secrets with Gitleaks...');
+
     // Always scan working tree first to determine state
     workingTreeResults = scanWorkingTree(repoPath);
 
@@ -146,6 +151,8 @@ export async function checkSecrets(args: any) {
       }
       results = scanBranch(repoPath, branch);
     }
+
+    await progress.step(3, 3, 'Processing and formatting results...');
 
     // Convert to SecretFindings
     const findings: SecretFinding[] = results.map((result) => {

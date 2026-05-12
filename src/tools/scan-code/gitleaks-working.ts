@@ -19,9 +19,10 @@ export function scanWorkingTreeForSecrets(projectPath: string): GitleaksResult[]
  */
 export function isGitleaksInstalled(): boolean {
   try {
-    const { execSync } = require('child_process');
-    execSync('gitleaks version', { stdio: 'pipe' });
-    return true;
+    // Delegate to check-secrets implementation, which also resolves common
+    // install locations when PATH doesn't include Homebrew.
+    const { isGitleaksInstalled: checkSecretsIsInstalled } = require('../check-secrets/gitleaks-history');
+    return Boolean(checkSecretsIsInstalled());
   } catch {
     return false;
   }

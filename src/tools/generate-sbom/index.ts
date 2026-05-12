@@ -9,18 +9,23 @@ import { analyzeLicenses } from './license-analyzer';
 import { generateCycloneDXJSON, generateCycloneDXXML } from './cyclonedx';
 import { generateSPDXJSON } from './spdx';
 import { GenerateSBOMArgs, SBOMFormat, SBOMSummary } from './types';
+import { ProgressReporter } from '../../shared/progress';
 
 /**
  * generate_sbom tool implementation
  */
-export async function generateSBOM(args: any) {
+export async function generateSBOM(args: any, progress: ProgressReporter) {
   const { format = 'cyclonedx-json', outputPath, projectPath }: GenerateSBOMArgs = args;
+
+  await progress.step(1, 4, 'Initializing SBOM generation...');
 
   const session = requireSession();
   const repoPath = projectPath || session.project.path;
   const projectName = session.project.name;
 
   try {
+    await progress.step(2, 4, 'Parsing project packages from lockfile...');
+
     // Parse packages from lockfile
     const packages = parseProjectPackages(repoPath);
 
@@ -34,6 +39,8 @@ export async function generateSBOM(args: any) {
         ],
       };
     }
+
+    await progress.step(3, 4, 'Analyzing licenses and generating SBOM...');
 
     // Analyze licenses
     const { breakdown, issues } = analyzeLicenses(packages);
@@ -69,6 +76,8 @@ export async function generateSBOM(args: any) {
           isError: true,
         };
     }
+
+    await progress.step(4, 4, 'Writing SBOM to file...');
 
     // Write to file if outputPath provided
     let outputFile: string | undefined;

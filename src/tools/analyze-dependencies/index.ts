@@ -27,6 +27,7 @@ import {
   extractNpmCVSS,
 } from './npm-audit';
 import { AnalyzeDependenciesArgs, OSVPackage, NpmAuditVulnerability, Ecosystem } from './types';
+import { ProgressReporter } from '../../shared/progress';
 
 /**
  * Determine dependency depth by checking if package is in package.json dependencies
@@ -216,7 +217,7 @@ function convertNpmAuditToDepFinding(
 /**
  * analyze_dependencies tool implementation
  */
-export async function analyzeDependencies(args: any) {
+export async function analyzeDependencies(args: any, progress: ProgressReporter) {
   const { lockfile, projectPath }: AnalyzeDependenciesArgs = args;
 
   const session = requireSession();
@@ -224,6 +225,8 @@ export async function analyzeDependencies(args: any) {
 
   const findings: DepFinding[] = [];
   const errors: string[] = [];
+
+  await progress.step(1, 4, 'Detecting lockfiles and ecosystem...');
 
   // Detect lockfile if not provided
   let detectedLockfile = lockfile;
@@ -255,6 +258,7 @@ export async function analyzeDependencies(args: any) {
   // Strategy 1: Try osv-scanner (universal)
   const hasOSVScanner = isOSVScannerInstalled();
   if (hasOSVScanner) {
+    await progress.step(2, 4, 'Running osv-scanner vulnerability scan...');
     try {
       const osvResults = runOSVScanner(detectedLockfile, repoPath);
       osvResults.forEach((pkg) => {
@@ -268,6 +272,7 @@ export async function analyzeDependencies(args: any) {
 
   // Strategy 2: Fallback to npm audit for Node.js projects
   if (ecosystem === 'npm' && !hasOSVScanner) {
+    await progress.step(2, 4, 'Running npm audit...');
     const hasNpm = isNpmInstalled();
     if (hasNpm && hasPackageLock(repoPath)) {
       try {
@@ -283,6 +288,8 @@ export async function analyzeDependencies(args: any) {
       errors.push('Neither osv-scanner nor npm is installed');
     }
   }
+
+  await progress.step(3, 4, 'Analyzing vulnerability severity and fixes...');
 
   // If no tool available
   if (!hasOSVScanner && (ecosystem !== 'npm' || !isNpmInstalled())) {
@@ -305,6 +312,8 @@ export async function analyzeDependencies(args: any) {
   // Sort by severity
   const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
   findings.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+  await progress.step(4, 4, 'Formatting results...');
 
   // Update session
   const existingCode = session.scanFindings?.code || [];

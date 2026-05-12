@@ -6,6 +6,7 @@ import { callClaude, validateApiKey } from '../../shared/claude-client';
 import { GuidanceResponse } from '../../shared/types';
 import { requireSession } from '../../session/context';
 import { GetGuidanceArgs, GuidancePromptContext } from './types';
+import { ProgressReporter } from '../../shared/progress';
 
 /**
  * Extract session context for prompt
@@ -290,8 +291,10 @@ function formatGuidanceOutput(guidance: GuidanceResponse): string {
 /**
  * get_guidance tool implementation
  */
-export async function getGuidance(args: any) {
+export async function getGuidance(args: any, progress: ProgressReporter) {
   const { question, mode = 'answer', projectPath }: GetGuidanceArgs = args;
+
+  await progress.step(1, 3, 'Extracting session context...');
 
   // Validate API key
   if (!validateApiKey()) {
@@ -330,6 +333,8 @@ export async function getGuidance(args: any) {
       };
     }
 
+    await progress.step(2, 3, 'Consulting Claude API for security guidance...');
+
     // Extract session context
     const context = extractSessionContext();
 
@@ -344,6 +349,8 @@ export async function getGuidance(args: any) {
         maxTokens: 3072,
       }
     );
+
+    await progress.step(3, 3, 'Formatting guidance response...');
 
     // Parse response
     const guidance = parseGuidanceResponse(response);

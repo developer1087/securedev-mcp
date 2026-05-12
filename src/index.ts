@@ -20,10 +20,32 @@ import { generateSBOM } from './tools/generate-sbom/index.js';
 import { analyzeArchitecture } from './tools/analyze-architecture/index.js';
 import { threatModel } from './tools/threat-model/index.js';
 import { getGuidance } from './tools/get-guidance/index.js';
+import { ProgressReporter } from './shared/progress.js';
 
 /**
  * Auto-initialize session if needed
  */
+function inferProjectPathFromArgs(args: any): string | undefined {
+  if (!args) return undefined;
+
+  // If the tool supports an explicit projectPath, prefer it.
+  if (typeof args.projectPath === 'string' && args.projectPath.length > 0) {
+    return args.projectPath;
+  }
+
+  // For tools that take `files`, infer the repo root from the first path.
+  // This prevents accidentally scanning the MCP server's cwd (often the user's home directory).
+  if (Array.isArray(args.files) && typeof args.files[0] === 'string' && args.files[0].length > 0) {
+    // If it's an absolute path to a file/dir, use it directly.
+    // If it's relative, it's relative to cwd anyway, so let the fallback handle it.
+    if (args.files[0].startsWith('/')) {
+      return args.files[0];
+    }
+  }
+
+  return undefined;
+}
+
 function ensureSession(projectPath?: string) {
   if (!hasSession()) {
     const path = projectPath || process.cwd();
@@ -72,6 +94,11 @@ async function main() {
                 type: 'string',
                 enum: ['web-app', 'api', 'cli', 'library'],
                 description: 'Type of project (helps tune rules)',
+              },
+              projectPath: {
+                type: 'string',
+                description:
+                  'Path to project root (recommended when passing absolute file paths; default: current directory)',
               },
             },
           },
@@ -207,29 +234,33 @@ async function main() {
 
     try {
       // Ensure session exists
-      ensureSession((args as any)?.projectPath);
+      ensureSession(inferProjectPathFromArgs(args));
+
+      // Create progress reporter
+      const progressToken = (request.params as any)._meta?.progressToken;
+      const progress = new ProgressReporter(server, progressToken);
 
       switch (name) {
         case 'scan_code':
-          return await scanCode(args);
+          return await scanCode(args, progress);
 
         case 'analyze_dependencies':
-          return await analyzeDependencies(args);
+          return await analyzeDependencies(args, progress);
 
         case 'analyze_architecture':
-          return await analyzeArchitecture(args);
+          return await analyzeArchitecture(args, progress);
 
         case 'threat_model':
-          return await threatModel(args);
+          return await threatModel(args, progress);
 
         case 'check_secrets':
-          return await checkSecrets(args);
+          return await checkSecrets(args, progress);
 
         case 'generate_sbom':
-          return await generateSBOM(args);
+          return await generateSBOM(args, progress);
 
         case 'get_guidance':
-          return await getGuidance(args);
+          return await getGuidance(args, progress);
 
         default:
           return {

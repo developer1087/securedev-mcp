@@ -7,15 +7,32 @@ import { existsSync } from 'fs';
 import { SemgrepOutput, SemgrepResult, ProjectType } from './types';
 
 /**
+ * Resolve a semgrep command we can execute.
+ *
+ * Some environments (like IDE sandboxes) don't include the user Python bin
+ * directory on PATH, even when `pip install --user semgrep` succeeded.
+ */
+function resolveSemgrepCommand(): string | null {
+  try {
+    execSync('semgrep --version', { stdio: 'pipe' });
+    return 'semgrep';
+  } catch {}
+
+  // Fallback to Python module invocation (works when semgrep is installed but
+  // the shim isn't on PATH).
+  try {
+    execSync('python3 -m semgrep --version', { stdio: 'pipe' });
+    return 'python3 -m semgrep';
+  } catch {}
+
+  return null;
+}
+
+/**
  * Check if semgrep is installed
  */
 export function isSemgrepInstalled(): boolean {
-  try {
-    execSync('semgrep --version', { stdio: 'pipe' });
-    return true;
-  } catch {
-    return false;
-  }
+  return resolveSemgrepCommand() !== null;
 }
 
 /**
@@ -50,7 +67,8 @@ export function runSemgrep(
   projectPath: string,
   projectType?: ProjectType
 ): SemgrepResult[] {
-  if (!isSemgrepInstalled()) {
+  const semgrepCmd = resolveSemgrepCommand();
+  if (!semgrepCmd) {
     throw new Error(
       'Semgrep is not installed. Please install it:\n' +
       '  macOS: brew install semgrep\n' +
@@ -83,7 +101,7 @@ export function runSemgrep(
     let output: string;
     try {
       output = execSync(
-        `cd "${projectPath}" && semgrep ${configArgs} --json ${fileArgs}`,
+        `cd "${projectPath}" && ${semgrepCmd} ${configArgs} --json ${fileArgs}`,
         {
           stdio: 'pipe',
           encoding: 'utf-8',

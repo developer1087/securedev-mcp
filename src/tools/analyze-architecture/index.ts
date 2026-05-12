@@ -9,17 +9,20 @@ import { detectComponents } from './detector';
 import { runRules } from './rules';
 import { analyzeLLM } from './llm-analyzer';
 import { AnalyzeArchitectureArgs } from './types';
+import { ProgressReporter } from '../../shared/progress';
 
 /**
  * analyze_architecture tool implementation
  */
-export async function analyzeArchitecture(args: any) {
+export async function analyzeArchitecture(args: any, progress: ProgressReporter) {
   const { configFiles, projectPath }: AnalyzeArchitectureArgs = args;
 
   const session = requireSession();
   const repoPath = projectPath || session.project.path;
 
   try {
+    await progress.step(1, 4, 'Detecting architecture components...');
+
     // Step 1: Detect components
     const detectedComponents = detectComponents(repoPath, configFiles);
 
@@ -45,8 +48,12 @@ export async function analyzeArchitecture(args: any) {
       .map((c) => `  - ${c.name} (${c.type}) - ${c.technology || 'unknown'}`)
       .join('\n');
 
+    await progress.step(2, 4, 'Running deterministic security rules...');
+
     // Step 3: Run deterministic rules
     const ruleFindings = runRules(detectedComponents);
+
+    await progress.step(3, 4, 'Analyzing architecture with STRIDE framework...');
 
     // Step 4: Run LLM analysis (if API key available)
     let llmFindings: typeof ruleFindings = [];
@@ -61,6 +68,8 @@ export async function analyzeArchitecture(args: any) {
         // Continue with rule-based findings only
       }
     }
+
+    await progress.step(4, 4, 'Merging findings and formatting results...');
 
     // Step 5: Merge findings
     const allFindings = [...ruleFindings, ...llmFindings];
