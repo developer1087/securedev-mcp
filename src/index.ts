@@ -18,41 +18,8 @@ import { scanCode } from './tools/scan-code/index.js';
 import { analyzeDependencies } from './tools/analyze-dependencies/index.js';
 import { generateSBOM } from './tools/generate-sbom/index.js';
 import { analyzeArchitecture } from './tools/analyze-architecture/index.js';
-
-// Tool stubs (to be implemented)
-
-async function analyzeArchitectureStub(args: any) {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: 'analyze_architecture tool - not yet implemented',
-      },
-    ],
-  };
-}
-
-async function threatModelStub(args: any) {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: 'threat_model tool - not yet implemented',
-      },
-    ],
-  };
-}
-
-async function getGuidanceStub(args: any) {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: 'get_guidance tool - not yet implemented',
-      },
-    ],
-  };
-}
+import { threatModel } from './tools/threat-model/index.js';
+import { getGuidance } from './tools/get-guidance/index.js';
 
 /**
  * Auto-initialize session if needed
@@ -253,7 +220,7 @@ async function main() {
           return await analyzeArchitecture(args);
 
         case 'threat_model':
-          return await threatModelStub(args);
+          return await threatModel(args);
 
         case 'check_secrets':
           return await checkSecrets(args);
@@ -262,7 +229,7 @@ async function main() {
           return await generateSBOM(args);
 
         case 'get_guidance':
-          return await getGuidanceStub(args);
+          return await getGuidance(args);
 
         default:
           return {
